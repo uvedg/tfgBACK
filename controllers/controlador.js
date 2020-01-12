@@ -65,7 +65,7 @@ exports.updateUser = function (req, res) {
 
         user.save(function(err) {
             if(err) return res.send(500, err.message);
-            res.status(200).jsonp(user);
+            res.status(200).json(user);
         });
     });
 };
@@ -157,8 +157,13 @@ exports.logoutUser = function (req, res, next) {
 
 
 //Obtener pistas (SCRAPING) - GET
-exports.obtenerPista = function (req, resp, callback) {
-    //var final = [];
+exports.obtenerPista = function (req, resp) {
+    //var final_2 = new Array();
+    var array = {
+        "partidas": [
+        
+        ]
+    };
 	console.log("Estoy en obtener pista por consola.");
     //Traemos los datos del formulario
     var ubicacion_elegida = req.body.ubicacion;
@@ -244,25 +249,32 @@ exports.obtenerPista = function (req, resp, callback) {
                     if(v_estado[i] == "Apuntarse" || v_estado[i] == "RESERVAR"){
                         if(inicioHora >= inicioHora_elegida && finHora <= finHora_elegida){
                             resultado = {'partida': i, 'fecha': fecha, 'estado': v_estado[i], 'inicioHora': inicioHora, 'finHora': finHora, 'url': urls };
-                            console.log(resultado);
+                            array["partidas"].push(resultado);
+                            //console.log(resultado);
 
                             //Creamos el la pista y la guardamos
-                            var pista_padel = new PistaSchema({
-                                partida: i,
-                                //poner unicamente Valencia ahora
-                                ubicacion: ubicacion,
-                                fecha: fecha,
-                                estado: v_estado[i],
-                                inicioHora: inicioHora,
-                                finHora: finHora,
-                                url: urls
-                            })
-                            pista_padel.save();
+                            // var pista_padel = new PistaSchema({
+                            //     partida: i,
+                            //     //poner unicamente Valencia ahora
+                            //     ubicacion: ubicacion,
+                            //     fecha: fecha,
+                            //     estado: v_estado[i],
+                            //     inicioHora: inicioHora,
+                            //     finHora: finHora,
+                            //     url: urls
+                            // })
+                            // pista_padel.save();
+
+                            //final_2.push(resultado);
+                            //resp.json(array);
+                            console.log(array);
+                            //resp.json({ msg: 'Frontend y Backend conectados.'});
+                            //primero conseguir mostrar el mensaje, luego un resultado, y luego ya el array json
                             
-                            //this.final.push(resultado);
-                            //res.json(final);
                             //Aqui el vector se muestra con los datos correctamente
                             //console.log(final);
+
+                            
                         }
                     }
                 }
@@ -280,6 +292,12 @@ exports.obtenerPista = function (req, resp, callback) {
     //callback(final);
     //resp.json(fecha_json);
 };
+
+//probando
+//de internet para enivar al html
+// app.get('/', function (req, res) {
+//     res.render('index', { title: 'Hey', message: 'Hello there!'});
+// });
 
 //Enviar valoracion (VALORAR) - POST
 exports.enviarValoracion = function (req, res, err) {
