@@ -157,141 +157,190 @@ exports.logoutUser = function (req, res, next) {
 
 
 //Obtener pistas (SCRAPING) - GET
-exports.obtenerPista = function (req, resp) {
-    //var final_2 = new Array();
-    var array = {
-        "partidas": [
+// exports.obtenerPista = function (req, resp) {
+//     //var final_2 = new Array();
+//     var array = {
+//         "partidas": [
         
-        ]
-    };
-	console.log("Estoy en obtener pista por consola.");
-    //Traemos los datos del formulario
-    var ubicacion_elegida = req.body.ubicacion;
-    var fecha_elegida = req.body.fecha;
-    var inicioHora_elegida = req.body.inicioHora;
-    var finHora_elegida = req.body.finHora;
+//         ]
+//     };
+// 	console.log("Estoy en obtener pista por consola.");
+//     //Traemos los datos del formulario
+//     var ubicacion_elegida = req.body.ubicacion;
+//     var fecha_elegida = req.body.fecha;
+//     var inicioHora_elegida = req.body.inicioHora;
+//     var finHora_elegida = req.body.finHora;
 
-    inicioHora_elegida = inicioHora_elegida.toString();
-    finHora_elegida = finHora_elegida.toString();
+//     inicioHora_elegida = inicioHora_elegida.toString();
+//     finHora_elegida = finHora_elegida.toString();
 
-    //Convertir hora para realizar correctamente la validación siguiente
-    if(finHora_elegida == "00:00"){
-        finHora_elegida = "24:00";
-    }
+//     //Convertir hora para realizar correctamente la validación siguiente
+//     if(finHora_elegida == "00:00"){
+//         finHora_elegida = "24:00";
+//     }
 
-    console.log("La ubicacion es: "+ubicacion_elegida);
-    console.log("La fecha es: "+fecha_elegida);
-    console.log("La hora inicio es: "+inicioHora_elegida);
-    console.log("La hora fin es: "+finHora_elegida);
+//     console.log("La ubicacion es: "+ubicacion_elegida);
+//     console.log("La fecha es: "+fecha_elegida);
+//     console.log("La hora inicio es: "+inicioHora_elegida);
+//     console.log("La hora fin es: "+finHora_elegida);
 
-    //Validación de campos 
-    if (inicioHora_elegida >= finHora_elegida) {
-        console.log("Error: La hora de fin no puede ser menor a la hora de inicio.");
-        return resp.send('La hora de fin es menor que la hora de inicio');
-    }
+//     //Validación de campos 
+//     if (inicioHora_elegida >= finHora_elegida) {
+//         console.log("Error: La hora de fin no puede ser menor a la hora de inicio.");
+//         return resp.send('La hora de fin es menor que la hora de inicio');
+//     }
 
-    //Variable con la información de la página web.
-    var info;
-    //Variables para el manejo de las horas.
-    var horas, inicioHora, finHora;
-    //Variable para el manejo de las direcciones web.
-    var urls;
-    //Variable para el manejo de la fecha.
-    var fecha;
-    //Variable y vector para el manejo del estado (Apuntarse/No disponible/Completa)
-    var estado;
-    var v_estado = [];
-    //Objeto con la información de los resultados
-    var resultado;
-    //Vector de direcciones url donde se realiza scraping
-    var v_url = 
-        "http://usuarios.futbolcity.es/partidas/Cuadro.aspx"+"?f="+fecha_elegida+"&c=3";
-        //"http://www.padel365.com/Partidas/Cuadro.aspx"+"?f="+fecha_elegida+"&c=3"];
+//     //Variable con la información de la página web.
+//     var info;
+//     //Variables para el manejo de las horas.
+//     var horas, inicioHora, finHora;
+//     //Variable para el manejo de las direcciones web.
+//     var urls;
+//     //Variable para el manejo de la fecha.
+//     var fecha;
+//     //Variable y vector para el manejo del estado (Apuntarse/No disponible/Completa)
+//     var estado;
+//     var v_estado = [];
+//     //Objeto con la información de los resultados
+//     var resultado;
+//     //Vector de direcciones url donde se realiza scraping
+//     var v_url = 
+//         "http://usuarios.futbolcity.es/partidas/Cuadro.aspx"+"?f="+fecha_elegida+"&c=3";
+//         //"http://www.padel365.com/Partidas/Cuadro.aspx"+"?f="+fecha_elegida+"&c=3"];
     
-    var cont;
-    var contador_total= 0;
+//     var cont;
+//     var contador_total= 0;
 
-    //for(cont = 0; cont<v_url.length; cont++) {
-        //contador_total++;
-        request(v_url, (err, res, body) => {
-            //contador_total++;
+//     //for(cont = 0; cont<v_url.length; cont++) {
+//         //contador_total++;
+//         request(v_url, (err, res, body) => {
+//             //contador_total++;
+//             if(!err && res.statusCode == 200) {
+//                 let $ = cheerio.load(body);
+
+//                 //Extracion de la informacion de la web.
+//                 info = $('.TextoLink', '#divContenedorPartidas');
+
+//                 //Extraccion de la fecha
+//                 fecha = $('.fechaTabla', '#divContenedorPartidas').attr('value');
+                
+//                 //Extraccion del estado de la pista (tambien hay botones Amarillo, etc...)
+//                 $('.botonVerdePartidas,.botonAmarilloPartidas,.botonAzulPartidas', '#divContenedorPartidas').each(function () {
+//                     estado = $(this).text();
+//                     v_estado.push(estado);
+//                 });
+
+//                 for(var i=0; i < info.length; i++){
+                    
+//                     //Extraccion de las horas
+//                     horas = $(info[i]).text().split(" - ");
+//                     //Separacion entre las horas de inicio y las horas de fin
+//                     for(var k=0; k < horas.length; k++){
+//                         inicioHora = horas[0];
+//                         finHora = horas[1];
+//                         //inicioHora = inicioHora.toString();
+//                         //finHora = finHora.toString();
+//                     }
+
+//                     //Extraccion de las direcciones url
+//                     urls = info[i].attribs.href;
+
+//                     //Solo muestra las disponibles para apuntarse/reservar dentro del horario (falta la ubicacion)
+//                     if(v_estado[i] == "Apuntarse" || v_estado[i] == "RESERVAR"){
+//                         if(inicioHora >= inicioHora_elegida && finHora <= finHora_elegida){
+//                             resultado = {'partida': i, 'fecha': fecha, 'estado': v_estado[i], 'inicioHora': inicioHora, 'finHora': finHora, 'url': urls };
+//                             array["partidas"].push(resultado);
+//                             //console.log(resultado);
+
+//                             //Creamos el la pista y la guardamos
+//                             // var pista_padel = new PistaSchema({
+//                             //     partida: i,
+//                             //     //poner unicamente Valencia ahora
+//                             //     ubicacion: ubicacion,
+//                             //     fecha: fecha,
+//                             //     estado: v_estado[i],
+//                             //     inicioHora: inicioHora,
+//                             //     finHora: finHora,
+//                             //     url: urls
+//                             // })
+//                             // pista_padel.save();
+
+//                             //final_2.push(resultado);
+//                             //resp.json(array);
+//                             console.log(array);
+//                             //resp.json({ msg: 'Frontend y Backend conectados.'});
+//                             //primero conseguir mostrar el mensaje, luego un resultado, y luego ya el array json
+                            
+//                             //Aqui el vector se muestra con los datos correctamente
+//                             //console.log(final);
+
+                            
+//                         }
+//                     }
+//                 }
+
+//             }
+
+//         });
+//         //Aqui se muestra vacio (se muestras 2)
+//         //console.log(this.final);
+        
+//     //}
+//     //Aqui se muestra vacio (se muestras 1)
+//     //console.log(final);
+//     //console.log("contador total del bucle grande: " + contador_total);
+//     //callback(final);
+//     //resp.json(fecha_json);
+// };
+
+//probando funcion thereads de felix
+exports.obtenerPista = function (req, resp, callback) {
+    
+    var fecha_elegida = req.body.fecha;
+
+    var uris = [
+        //"http://usuarios.futbolcity.es/partidas/Cuadro.aspx"+"?f="+fecha_elegida+"&c=3"
+        "http://usuarios.futbolcity.es/partidas/Cuadro.aspx",
+        "http://www.padel365.com/Partidas/Cuadro.aspx"
+    ];
+
+    var counter = 0,
+        len = uris.length,
+        partidas = [],
+        prueba_url = [],
+        result = {},
+        estado, v_estado;
+
+    for (var i = 0; i < len; i++) {
+        request(uris[i], (err, res, body) => {
             if(!err && res.statusCode == 200) {
+                console.log("Data retrived correctly from: " + uris[counter]);
                 let $ = cheerio.load(body);
-
                 //Extracion de la informacion de la web.
                 info = $('.TextoLink', '#divContenedorPartidas');
-
-                //Extraccion de la fecha
-                fecha = $('.fechaTabla', '#divContenedorPartidas').attr('value');
                 
-                //Extraccion del estado de la pista (tambien hay botones Amarillo, etc...)
-                $('.botonVerdePartidas,.botonAmarilloPartidas,.botonAzulPartidas', '#divContenedorPartidas').each(function () {
-                    estado = $(this).text();
-                    v_estado.push(estado);
-                });
-
-                for(var i=0; i < info.length; i++){
-                    
-                    //Extraccion de las horas
-                    horas = $(info[i]).text().split(" - ");
-                    //Separacion entre las horas de inicio y las horas de fin
-                    for(var k=0; k < horas.length; k++){
-                        inicioHora = horas[0];
-                        finHora = horas[1];
-                        //inicioHora = inicioHora.toString();
-                        //finHora = finHora.toString();
+                for (var j = 0; j < 5; j++) //probar con 5 y luego cambiar por info.length
+                {
+                    prueba_url = info[j].attribs.href;
+                    result["web_" + counter] = {
+                        "url": uris[counter],
+                        "date": $('.fechaTabla', '#divContenedorPartidas').attr('value'),
+                        //"direccion": info[j].attribs.href
+                        "direccion": prueba_url
                     }
-
-                    //Extraccion de las direcciones url
-                    urls = info[i].attribs.href;
-
-                    //Solo muestra las disponibles para apuntarse/reservar dentro del horario (falta la ubicacion)
-                    if(v_estado[i] == "Apuntarse" || v_estado[i] == "RESERVAR"){
-                        if(inicioHora >= inicioHora_elegida && finHora <= finHora_elegida){
-                            resultado = {'partida': i, 'fecha': fecha, 'estado': v_estado[i], 'inicioHora': inicioHora, 'finHora': finHora, 'url': urls };
-                            array["partidas"].push(resultado);
-                            //console.log(resultado);
-
-                            //Creamos el la pista y la guardamos
-                            // var pista_padel = new PistaSchema({
-                            //     partida: i,
-                            //     //poner unicamente Valencia ahora
-                            //     ubicacion: ubicacion,
-                            //     fecha: fecha,
-                            //     estado: v_estado[i],
-                            //     inicioHora: inicioHora,
-                            //     finHora: finHora,
-                            //     url: urls
-                            // })
-                            // pista_padel.save();
-
-                            //final_2.push(resultado);
-                            //resp.json(array);
-                            console.log(array);
-                            //resp.json({ msg: 'Frontend y Backend conectados.'});
-                            //primero conseguir mostrar el mensaje, luego un resultado, y luego ya el array json
-                            
-                            //Aqui el vector se muestra con los datos correctamente
-                            //console.log(final);
-
-                            
-                        }
-                    }
+                    partidas.push(result);
                 }
-
             }
-
+            counter++;
+            
+            if (counter == len){
+                //console.log(result); resp.json(result);
+                console.log(partidas); resp.json(partidas);
+            }
         });
-        //Aqui se muestra vacio (se muestras 2)
-        //console.log(this.final);
-        
-    //}
-    //Aqui se muestra vacio (se muestras 1)
-    //console.log(final);
-    //console.log("contador total del bucle grande: " + contador_total);
-    //callback(final);
-    //resp.json(fecha_json);
+    }
 };
+
 
 //probando
 //de internet para enivar al html
