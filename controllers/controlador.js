@@ -53,9 +53,12 @@ exports.createUser = function (req, res, err) {
         permiso: permiso
     })
 
-    user.save();
-
-    //Poner mensaje de error si el email es duplicado y no se crea el usuario
+    user.save(function (err) {
+        if (err) {
+            return res.send(500, err.message);
+        }
+        res.status(200).json(user);
+    });
 };
 
 //Actualizar usuario (EDITAR) - PUT
@@ -108,14 +111,14 @@ exports.loginUser = async function (req, res) {
         let token = service.createToken(usuarioEncontrado);
         res.status(200).send({ token: token });
 
-        usuarioEncontrado.token = token;
+        // usuarioEncontrado.token = token;
 
-        usuarioEncontrado.save(function (err) {
-            if (err) {
-                return res.send(500, err.message);
-            }
-            // res.status(200).json(user);
-        });
+        // usuarioEncontrado.save(function (err) {
+        //     if (err) {
+        //         return res.send(500, err.message);
+        //     }
+        //     // res.status(200).json(user);
+        // });
     }
     //else res.status(401);
     //res.json({ msg: usuarioEncontrado});
