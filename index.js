@@ -48,7 +48,7 @@ ruta.route('/mostrarValoraciones').get(Controlador.mostrarValoraciones);
 
 //Ruta solo accesible si estas autenticado
 ruta.get('/private', middleware.ensureAuthenticated, function(req, res) {
-    
+    console.log("entra");
 });
 
 app.use('/api', ruta);
