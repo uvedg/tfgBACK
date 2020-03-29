@@ -25,6 +25,7 @@ exports.createUser = function (req, res, err) {
     var apellidos = req.body.apellidos;
     var email = req.body.email;
     var password = req.body.password;
+    var confirmarPassword = req.body.confirmarPassword;
     var permiso = req.body.permiso;
 
     //Validación de campos 
@@ -40,6 +41,9 @@ exports.createUser = function (req, res, err) {
     } else if (password === '' || password === null) {
         console.log("Error: Campo 'password' vacio.");
         return res.send('El campo Password está vacío, revisar');
+    } else if (password != confirmarPassword) {
+        console.log("Error: La confirmación de contraseña no coinciden.");
+        return res.send('La confirmación de contraseña no coinciden, revisar');
     }
 
     let passwordCifher = md5(password);
