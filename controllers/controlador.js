@@ -90,7 +90,7 @@ exports.deleteUser = function (req, res) {
     UserSchema.findById(req.params.id, function (err, user) {
         user.remove(function (err) {
             if (err) return res.send(500, err.message);
-            res.status(200);
+            res.status(200).json(user);
         })
     });
 };
@@ -113,7 +113,7 @@ exports.loginUser = async function (req, res) {
         res.sendStatus(400);
     } else {
         let token = service.createToken(usuarioEncontrado);
-        res.status(200).send({ token: token });
+        res.status(200).send({ token: token }).json(user);
 
         // usuarioEncontrado.token = token;
 
