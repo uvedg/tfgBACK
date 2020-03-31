@@ -44,6 +44,9 @@ exports.createUser = function (req, res, err) {
     } else if (password != confirmarPassword) {
         console.log("Error: La confirmación de contraseña no coinciden.");
         return res.send('La confirmación de contraseña no coinciden, revisar');
+    } else if (permiso === true) {
+        console.log("Error: La confirmación de contraseña no coinciden.");
+        return res.send('La confirmación de contraseña no coinciden, revisar');
     }
 
     let passwordCifher = md5(password);
