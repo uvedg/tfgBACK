@@ -13,7 +13,7 @@ const request = require('request');
 
 //Comprueba  la conexcion Front con Back - GET
 exports.comprobarConexion = function (req, res) {
-    res.json({ msg: 'Frontend y Backend conectados.' });
+    res.json({msg: 'Frontend y Backend conectados.'});
     console.log("Frontend y Backend conectados por consola.");
 };
 
@@ -85,11 +85,14 @@ exports.updateUser = function (req, res) {
 exports.deleteUser = function (req, res) {
     UserSchema.findById(req.params.id, function (err, user) {
         user.remove(function (err) {
-            if (err) return res.send(500, err.message);
+            if (err)
+                return res.send(500, err.message);
             res.status(200);
-        })
+        });
     });
 };
+
+
 
 //Iniciar sesion (LOGIN) 
 exports.loginUser = async function (req, res) {
@@ -99,7 +102,7 @@ exports.loginUser = async function (req, res) {
     var password = md5(req.body.password);
 
     var usuarioEncontrado;
-    await UserSchema.findOne({ email: email, password: password }, function (err, usuario) {
+    await UserSchema.findOne({email: email, password: password}, function (err, usuario) {
         if (err) {
             return console.log('Error al buscar usuario en el login');
         }
@@ -109,7 +112,7 @@ exports.loginUser = async function (req, res) {
         res.sendStatus(400);
     } else {
         let token = service.createToken(usuarioEncontrado);
-        res.status(200).send({ token: token });
+        res.status(200).send({token: token});
 
         // usuarioEncontrado.token = token;
 
@@ -130,7 +133,7 @@ exports.findUser = function (req, res) {
     var email_elegido = req.body.email;
     console.log(email_elegido)
 
-    UserSchema.find({ email: email_elegido }, function (err, user) {
+    UserSchema.find({email: email_elegido}, function (err, user) {
         if (err) {
             res.send(500, err.message);
         } else {
@@ -157,7 +160,7 @@ exports.recuperarPassword = function (req, res) {
 
     var email_elegido = req.body.email;
 
-    UserSchema.find({ email: email_elegido }, function (err, user) {
+    UserSchema.find({email: email_elegido}, function (err, user) {
         if (err) {
             res.send(500, err.message);
         } else {
@@ -340,7 +343,7 @@ exports.obtenerPista = function (req, resp, callback) {
             console.log('Funciona valencia');
             uris = [
                 "http://usuarios.futbolcity.es/partidas/Cuadro.aspx" + "?f=" + fechaElegida + "&c=3"
-                //    // "http://www.padel365.com/Partidas/Cuadro.aspx" + "?f=" + fechaElegida + "&c=3"
+                        //    // "http://www.padel365.com/Partidas/Cuadro.aspx" + "?f=" + fechaElegida + "&c=3"
             ];
             break;
         case 'castellon':
@@ -363,7 +366,7 @@ exports.obtenerPista = function (req, resp, callback) {
             break;
         default:
             console.log('No hay uris disponibles');
-        //añadir callback
+            //añadir callback
     }
 
     let anyoMesDia = req.body.fecha.split("-");
@@ -399,14 +402,14 @@ exports.obtenerPista = function (req, resp, callback) {
 
         async.eachOfSeries(uris, function (uri, key, callback) {
             request(uri, (err, res, body) => {
-                if (!err && res.statusCode == 200) {
+                if (!err && res.statusCode === 200) {
                     bodies.push(body);
                 }
-                return callback();
+                return callbackW();
             });// fin request
         }, function (err) {
             if (err) {
-                return callback();
+                return callbackW();
             }
 
             return callbackW(null, bodies);
@@ -450,7 +453,7 @@ exports.obtenerPista = function (req, resp, callback) {
                 let disponibilidad = html(info[j + 1]).text();
 
                 re_url = info[j].attribs.href;
-                result = { // habbria que meterlo en if de las horas
+                result = {// habbria que meterlo en if de las horas
                     // "url": uris[counter],
                     "date": html('.fechaTabla', '#divContenedorPartidas').attr('value'),
                     "horainicioPartida": horas[0] + ":" + horas[1],
@@ -465,7 +468,7 @@ exports.obtenerPista = function (req, resp, callback) {
                 }
 
                 if (inicioPartida >= inicioElegido && finPartida <= finElegido &&
-                    disponibilidad === "Apuntarse") {
+                        disponibilidad === "Apuntarse") {
                     partidas["web_" + counter].push(result);
                 }
             } // fin for j
@@ -514,7 +517,7 @@ exports.enviarValoracion = function (req, res, err) {
     console.log(id_emisor);
     var id_receptor;
     var email_elegido = req.body.email;
-    UserSchema.find({ email: email_elegido }, function (err, user) {
+    UserSchema.find({email: email_elegido}, function (err, user) {
         if (err) {
             res.send(500, err.message);
         } else {
@@ -549,11 +552,10 @@ exports.mostrarValoraciones = function (req, res) {
     var id_buscado = "b";
 
 
-    ValoracionSchema.find({ id_receptor: id_buscado }, function (err, valoraciones) {
+    ValoracionSchema.find({id_receptor: id_buscado}, function (err, valoraciones) {
         if (err) {
             res.send(500, err.message);
-        }
-        else {
+        } else {
             console.log("Se muestras todas las valoraciones");
             console.log(valoraciones);
             res.status(200).json(valoraciones);
