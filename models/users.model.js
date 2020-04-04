@@ -6,7 +6,7 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, match: [/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/, 'Please enter a valid email'], trim: true },
   //Poner hashedPassword para mayor seguridad
   password: { type: String, required: true, trim: true },
-  permiso: { type: Boolean, required: false },
+  permiso: { type: Boolean, required: true },
   createdAt: { type: Date, default: Date.now },
   // token: { type: String, required: true},
   roles: [{ type: String, }]
