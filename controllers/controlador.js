@@ -8,26 +8,25 @@ var md5 = require("md5");
 const cheerio = require("cheerio");
 const request = require("request");
 
-// Comprueba  la conexcion Front con Back - GET
-exports.comprobarConexion = function (req, res) {
-    res.json({msg: "Frontend y Backend conectados."});
-    console.log("Frontend y Backend conectados por consola.");
-};
-
 // Crear usuario (REGISTRAR/SIGNUP) - POST
 exports.createUser = function (req, res, err) {
-    console.log("Estoy en crear usuarios por consola.");
+    var nombre;
+    var apellidos;
+    var email;
+    var password;
+    var confirmarPassword;
+    var permiso;
+    var passwordCifher;
 
-    // Traemos los datos del formulario
-    var nombre = req.body.nombre;
-    var apellidos = req.body.apellidos;
-    var email = req.body.email;
-    var password = req.body.password;
-    var confirmarPassword = req.body.confirmarPassword;
-    var permiso = req.body.permiso;
-    var passwordCifher = md5(password);
+    nombre = req.body.nombre;
+    apellidos = req.body.apellidos;
+    email = req.body.email;
+    password = req.body.password;
+    confirmarPassword = req.body.confirmarPassword;
+    permiso = req.body.permiso;
+    passwordCifher = md5(password);
 
-    // Validación de campos
+    //  Validación de campos
     if (nombre === "") {
         console.log("Error: Campo 'nombre' vacio.");
         return res.send("El campo Nombre está vacío, revisar");
@@ -67,38 +66,12 @@ exports.createUser = function (req, res, err) {
 
 // Actualizar usuario (EDITAR) - PUT
 exports.updateUser = function (req, res) {
-    console.log("Estoy en actualizar usuarios por consola.");
-
+    // falta devolver el objeto actuallizado 
+    // findOneAndUpdate devuelve el que encuentra no el actualizado
     var queries = [];
-    var nombre;
-    var apellidos;
-    var email;
-    var password;
-    var permiso;
-
-    nombre = req.body.nombre;
-    apellidos = req.body.apellidos;
-    email = req.body.email;
-    password = req.body.password;
-    permiso = req.body.permiso;
 
     queries.push(function (callbackW) {
-        UserSchema.findById(req.params.id, function (err, user) {
-            if (err) {
-                return callbackW(err);
-            }
-            user.nombre = nombre;
-            user.apellidos = apellidos;
-            user.email = email;
-            user.password = password;
-            user.permiso = permiso;
-
-            return callbackW(null, user);
-        });
-    });
-
-    queries.push(function (user, callbackW) {
-        user.save(function (err) {
+        UserSchema.findOneAndUpdate({_id: req.params.id}, req.body, function (err, user) {
             if (err) {
                 return callbackW(err);
             }
@@ -118,8 +91,8 @@ exports.updateUser = function (req, res) {
 
 // Eliminar usuario (ELIMINAR) - DELETE
 exports.deleteUser = function (req, res) {
+    // hacerlo con una intruccion
     var queries = [];
-
     queries.push(function (callbackW) {
         UserSchema.findById(req.params.id, function (err, user) {
             if (err) {
@@ -151,57 +124,32 @@ exports.deleteUser = function (req, res) {
 
 // Iniciar sesion (LOGIN
 exports.loginUser = async function (req, res) {
-    console.log("Se muestra el req body: ");
-    console.log(req.body);
-
     var email;
     var password;
-    let usuarioEncontrado;
-
     email = req.body.email;
     password = md5(req.body.password);
 
-    await UserSchema.findOne({email: email, password: password}, function (err, usuario) {
+    UserSchema.findOne({email: email, password: password}, function (err, usuario) {
         if (err) {
-            return console.log("Error al buscar usuario en el login");
+            res.send(400, {err: "El usuario o la contraseña no es correcto"});
         }
 
-        usuarioEncontrado = usuario;
+        var token = service.createToken(usuario);
+        res.status(200).send({user: usuario, token: token}).json();
     });
-
-    if (!usuarioEncontrado) {
-        res.send(400, {err: "El usuario o la contraseña no es correcto"});
-    } else {
-        var token = service.createToken(usuarioEncontrado);
-        res.status(200).send({user: usuarioEncontrado, token: token}).json();
-    }
 };
 
 // Buscar usuario por email (findUser) - GET
 exports.findUser = function (req, res) {
     var emailElegido;
-
     emailElegido = req.body.email;
     console.log(emailElegido);
 
-    UserSchema.find({email: emailElegido}, function (err, user) {
+    UserSchema.findOne({email: emailElegido}, function (err, user) {
         if (err) {
             res.send(500, err.message);
         } else {
-            console.log(user.permiso);
-            console.log(user.email);
-            console.log(user);
-            res.json(user);
-            // if(user.permiso == true && user.email == email_elegido){
-            //     res.json(user);
-            //     console.log(user);
-            // } else {
-            //     res.json({ msg: "Error al buscar usuario."});
-            // }
-
-            // console.log("usuario encontrado");
-            // console.log(user);
-            // res.status(200).json(user);
+            res.status(200).json(user);
         }
     });
 };
@@ -221,15 +169,7 @@ exports.recuperarPassword = function (req, res) {
 
 // Cerrar sesion (LOGOUT) - GET
 exports.logoutUser = function (req, res, next) {
-    if (req.session) {
-        req.session.destroy(function (err) {
-            if (err) {
-                return next(err);
-            } else {
-                return res.redirect("http://localhost:3000/api");
-            }
-        });
-    }
+    return res.status(200).json({});
 };
 
 // Probando funcion thereads
@@ -393,205 +333,35 @@ exports.obtenerPista = function (req, resp, next) {
 
 // Enviar valoracion (VALORAR) - POST
 exports.enviarValoracion = function (req, res, err) {
-    console.log("Estoy en enviar valoracion por consola.");
-
-    // Extraccion de id
-    var idEmisor = req.body.id;
-    console.log(idEmisor);
-    let idReceptor;
-    var emailElegido = req.body.email;
-    // Traemos los datos del formulario
+    var user = req.body.user;
     var puntuacion = req.body.puntuacion;
-    var descripcion = req.body.descripcion;
+    var comentario = req.body.comentario;
+    var valoradorPor = req.body.valorado_por;
 
-    UserSchema.find({email: emailElegido}, function (err, user) {
-        if (err) {
-            res.send(500, err.message);
-        } else {
-            console.log(user._id);
-            idReceptor = user._id;
-        }
-    });
-
-    // Creamos la valoracion y lo guardamos
     var valoracion = new ValoracionSchema({
         puntuacion: puntuacion,
-        descripcion: descripcion,
-        id_emisor: idEmisor,
-        id_receptor: idReceptor
+        comentario: comentario,
+        user: user,
+        valorado_por: valoradorPor
     });
 
-    // Poner la id_emisor e id_receptor
-    valoracion.save();
+    valoracion.save(function (err) {
+        if (err) {
+            return res.send(500, err.message);
+        }
+        res.status(200).json(valoracion);
+    });
 };
 
 // Mostrar valoraciones (VALORAR) - GET
 exports.mostrarValoraciones = function (req, res) {
-    console.log("Estoy en mostrar valoraciones por consola.");
+    var email = req.params.email;
 
-    // Sustituir por la id del usuario buscado previamente.
-    var idBuscado = "b";
-
-    ValoracionSchema.find({id_receptor: idBuscado}, function (err, valoraciones) {
+    ValoracionSchema.find({user: email}, function (err, valoraciones) {
         if (err) {
             res.send(500, err.message);
         } else {
-            console.log("Se muestras todas las valoraciones");
-            console.log(valoraciones);
             res.status(200).json(valoraciones);
         }
     });
 };
-
-// counter++;
-
-// if (counter == urisLenght) {
-// console.log(result); resp.json(result);
-// for(let k =0; k < partidas.length; k++){
-// console.log(partidas[k]);
-// resp.json(partidas);
-// }
-// });
-// };
-
-// probando
-// de internet para enilet al html
-// app.get("/", function (req, res) {
-//     res.render("index", { title: "Hey", message: "Hello there!"});
-// });
-
-// Obtener pistas (SCRAPING) - GET
-// exports.obtenerPista = function (req, resp) {
-//     //let final_2 = new Array();
-//     let array = {
-//         "partidas": [
-
-//         ]
-//     };
-// console.log("Estoy en obtener pista por consola.");
-//     // Traemos los datos del formulario
-//     let ubicacion_elegida = req.body.ubicacion;
-//     let fechaElegida = req.body.fecha;
-//     let inicioHora_elegida = req.body.inicioHora;
-//     let finHora_elegida = req.body.finHora;
-
-//     inicioHora_elegida = inicioHora_elegida.toString();
-//     finHora_elegida = finHora_elegida.toString();
-
-//     //Convertir hora para realizar correctamente la validación siguiente
-//     if(finHora_elegida == "00:00"){
-//         finHora_elegida = "24:00";
-//     }
-
-//     console.log("La ubicacion es: "+ubicacion_elegida);
-//     console.log("La fecha es: "+fechaElegida);
-//     console.log("La hora inicio es: "+inicioHora_elegida);
-//     console.log("La hora fin es: "+finHora_elegida);
-
-//     // Validación de campos
-//     if (inicioHora_elegida >= finHora_elegida) {
-//         console.log("Error: La hora de fin no puede ser menor a la hora de inicio.");
-//         return resp.send("La hora de fin es menor que la hora de inicio");
-//     }
-
-//     //Variable con la información de la página web.
-//     let info;
-//     //Variables para el manejo de las horas.
-//     let horas, inicioHora, finHora;
-//     //Variable para el manejo de las direcciones web.
-//     let urls;
-//     //Variable para el manejo de la fecha.
-//     let fecha;
-//     //Variable y vector para el manejo del estado (Apuntarse/No disponible/Completa)
-//     let estado;
-//     let v_estado = [];
-//     //Objeto con la información de los resultados
-//     let resultado;
-//     //Vector de direcciones url donde se realiza scraping
-//     let v_url =
-//     //         "http://usuarios.futbolcity.es/partidas/Cuadro.aspx"+"?f="+fechaElegida+"&c=3";
-//         //"http://www.padel365.com/Partidas/Cuadro.aspx"+"?f="+fechaElegida+"&c=3"];
-
-//     let cont;
-//     let contador_total= 0;
-
-//     //for(cont = 0; cont<v_url.length; cont++) {
-//         //contador_total++;
-//         request(v_url, (err, res, body) => {
-//             //contador_total++;
-//             if(!err && res.statusCode == 200) {
-//                 let $ = cheerio.load(body);
-
-//                 //Extracion de la informacion de la web.
-//                 info = $(".TextoLink", "#divContenedorPartidas");
-
-//                 //Extraccion de la fecha
-//                 fecha = $(".fechaTabla", "#divContenedorPartidas").attr("value");
-
-//                 //Extraccion del estado de la pista (tambien hay botones Amarillo, etc...)
-//                 $(".botonVerdePartidas,.botonAmarilloPartidas,.botonAzulPartidas", "#divContenedorPartidas").each(function () {
-//                     estado = $(this).text();
-//                     v_estado.push(estado);
-//                 });
-
-//                 for(let i=0; i < info.length; i++){
-
-//                     //Extraccion de las horas
-//                     horas = $(info[i]).text().split(" - ");
-//                     //Separacion entre las horas de inicio y las horas de fin
-//                     for(let k=0; k < horas.length; k++){
-//                         inicioHora = horas[0];
-//                         finHora = horas[1];
-//                         //inicioHora = inicioHora.toString();
-//                         //finHora = finHora.toString();
-//                     }
-
-//                     //Extraccion de las direcciones url
-//                     urls = info[i].attribs.href;
-
-//                     //Solo muestra las disponibles para apuntarse/reserlet dentro del horario (falta la ubicacion)
-//                     if(v_estado[i] == "Apuntarse" || v_estado[i] == "RESERVAR"){
-//                         if(inicioHora >= inicioHora_elegida && finHora <= finHora_elegida){
-//                             resultado = {"partida": i, "fecha": fecha, "estado": v_estado[i], "inicioHora": inicioHora, "finHora": finHora, "url": urls };
-//                             array["partidas"].push(resultado);
-//                             //console.log(resultado);
-
-//                             //Creamos el la pista y la guardamos
-//                             // let pista_padel = new PistaSchema({
-//                             //     partida: i,
-//                             //     //poner unicamente Valencia ahora
-//                             //     ubicacion: ubicacion,
-//                             //     fecha: fecha,
-//                             //     estado: v_estado[i],
-//                             //     inicioHora: inicioHora,
-//                             //     finHora: finHora,
-//                             //     url: urls
-//                             // })
-//                             // pista_padel.save();
-
-//                             //final_2.push(resultado);
-//                             //resp.json(array);
-//                             console.log(array);
-//                             //resp.json({ msg: "Frontend y Backend conectados."});
-//                             //primero conseguir mostrar el mensaje, luego un resultado, y luego ya el array json
-
-//                             //Aqui el vector se muestra con los datos correctamente
-//                             //console.log(final);
-
-//                         }
-//                     }
-//                 }
-
-//             }
-
-//         });
-//         //Aqui se muestra vacio (se muestras 2)
-//         //console.log(this.final);
-
-//     //}
-//     //Aqui se muestra vacio (se muestras 1)
-//     //console.log(final);
-//     //console.log("contador total del bucle grande: " + contador_total);
-//     //callback(final);
-//     //resp.json(fecha_json);
-// };
