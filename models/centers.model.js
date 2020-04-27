@@ -8,4 +8,4 @@ const CenterSchema = new mongoose.Schema({
     createdAt: {type: Date, default: Date.now}
 }, {versionKey: false});
 
-module.exports = mongoose.model('Center', CenterSchema);
+module.exports = mongoose.model("Center", CenterSchema);

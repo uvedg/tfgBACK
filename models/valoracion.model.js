@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-//var Schema = mongoose.Schema;
+// var Schema = mongoose.Schema;
 
 const ValoracionSchema = new mongoose.Schema({
     // Falta saber si las id de los usuarios (el que hace la valoracion y el valorado) se pone aqui.
@@ -11,4 +11,4 @@ const ValoracionSchema = new mongoose.Schema({
 //        user: {type: Schema.Types.ObjectId, ref: "User", required: true, trim: true},
 }, {versionKey: false});
 
-module.exports = mongoose.model('Valoracion', ValoracionSchema);
+module.exports = mongoose.model("Valoracion", ValoracionSchema);

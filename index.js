@@ -9,9 +9,9 @@ var cors = require("cors");
 // Configuracion
 app.use(cors());
 
-mongoose.set('useFindAndModify', false);
+mongoose.set("useFindAndModify", false);
 
-//Conexion con la base de datos
+// Conexion con la base de datos
 mongoose.connect("mongodb://localhost/bdTFG", {useCreateIndex: true, useNewUrlParser: true}, function (err, res) {
     if (err) {
         throw err;

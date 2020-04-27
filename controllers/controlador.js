@@ -66,7 +66,7 @@ exports.createUser = function (req, res, err) {
 
 // Actualizar usuario (EDITAR) - PUT
 exports.updateUser = function (req, res) {
-    // falta devolver el objeto actuallizado 
+    // falta devolver el objeto actuallizado
     // findOneAndUpdate devuelve el que encuentra no el actualizado
     var queries = [];
 
@@ -130,12 +130,12 @@ exports.loginUser = async function (req, res) {
     password = md5(req.body.password);
 
     UserSchema.findOne({email: email, password: password}, function (err, usuario) {
-        if (err) {
-            res.send(400, {err: "El usuario o la contraseña no es correcto"});
+        if (err || usuario === null) {
+            return res.send(400, {err: "El usuario o la contraseña no es correcto"});
         }
 
         var token = service.createToken(usuario);
-        res.status(200).send({user: usuario, token: token}).json();
+        return res.status(200).send({user: usuario, token: token}).json();
     });
 };
 
