@@ -3,11 +3,9 @@ var ValoracionSchema = require("../models/valoracion.model");
 var service = require("../security/service");
 var async = require("async");
 var md5 = require("md5");
-
 // Añadido para obtener pista
 const cheerio = require("cheerio");
 const request = require("request");
-
 // Crear usuario (REGISTRAR/SIGNUP) - POST
 exports.createUser = function (req, res, err) {
     var nombre;
@@ -17,36 +15,28 @@ exports.createUser = function (req, res, err) {
     var confirmarPassword;
     var permiso;
     var passwordCifher;
-
     nombre = req.body.nombre;
     apellidos = req.body.apellidos;
     email = req.body.email;
     password = req.body.password;
     confirmarPassword = req.body.confirmarPassword;
     permiso = req.body.permiso;
-    passwordCifher = md5(password);
-
     //  Validación de campos
-    if (nombre === "") {
-        console.log("Error: Campo 'nombre' vacio.");
-        return res.send("El campo Nombre está vacío, revisar");
-    } else if (apellidos === "") {
-        console.log("Error: Campo 'apellidos' vacio.");
-        return res.send("El campo Apellidos está vacío, revisar");
-    } else if (email === "") {
-        console.log("Error: Campo 'email' vacio.");
-        return res.send("El campo Email está vacío, revisar");
-    } else if (password === "" || password === null) {
-        console.log("Error: Campo 'password' vacio.");
-        return res.send("El campo Password está vacío, revisar");
+    if (nombre === undefined || nombre === "" || nombre === null) {
+        return res.send(400, "El campo Nombre está vacío, revisar");
+    } else if (apellidos === undefined || apellidos === "" || apellidos === null) {
+        return res.send(400, "El campo Apellidos está vacío, revisar");
+    } else if (email === undefined || email === "" || email === null) {
+        return res.send(400, "El campo Email está vacío, revisar");
+    } else if (password === undefined || password === "" || password === null) {
+        return res.send(400, "El campo Password está vacío, revisar");
     } else if (password !== confirmarPassword) {
-        console.log("Error: La confirmación de contraseña no coinciden.");
-        return res.send("La confirmación de contraseña no coinciden, revisar");
+        return res.send(400, "La confirmación de contraseña no coinciden, revisar");
     } else if (permiso !== true) {
-        console.log("Error: Debe aceptar el permiso para registrarse.");
-        return res.send("Debe aceptar el permiso para registrarse, revisar");
+        return res.send(400, "Debe aceptar el permiso para registrarse, revisar");
     }
 
+    passwordCifher = md5(password);
     // Creamos el usuario y lo guardamos
     var user = new UserSchema({
         nombre: nombre,
@@ -55,7 +45,6 @@ exports.createUser = function (req, res, err) {
         password: passwordCifher,
         permiso: permiso
     });
-
     user.save(function (err) {
         if (err) {
             return res.send(500, err.message);
@@ -63,13 +52,11 @@ exports.createUser = function (req, res, err) {
         res.status(200).json(user);
     });
 };
-
 // Actualizar usuario (EDITAR) - PUT
 exports.updateUser = function (req, res) {
     // falta devolver el objeto actuallizado
     // findOneAndUpdate devuelve el que encuentra no el actualizado
     var queries = [];
-
     queries.push(function (callbackW) {
         UserSchema.findOneAndUpdate({_id: req.params.id}, req.body, function (err, user) {
             if (err) {
@@ -79,7 +66,6 @@ exports.updateUser = function (req, res) {
             return callbackW(null, user);
         });
     });
-
     async.waterfall(queries, function (err, user) {
         if (err) {
             res.send(500, err.message);
@@ -88,7 +74,6 @@ exports.updateUser = function (req, res) {
         res.status(200).json(user);
     });
 };
-
 // Eliminar usuario (ELIMINAR) - DELETE
 exports.deleteUser = function (req, res) {
     // hacerlo con una intruccion
@@ -102,7 +87,6 @@ exports.deleteUser = function (req, res) {
             return callbackW(null, user);
         });
     });
-
     queries.push(function (user, callbackW) {
         user.remove(function (err) {
             if (err) {
@@ -112,7 +96,6 @@ exports.deleteUser = function (req, res) {
             return callbackW(null, user);
         });
     });
-
     async.waterfall(queries, function (err, user) {
         if (err) {
             return res.send(500, err.message);
@@ -121,14 +104,12 @@ exports.deleteUser = function (req, res) {
         return res.status(200).json(user);
     });
 };
-
 // Iniciar sesion (LOGIN
 exports.loginUser = async function (req, res) {
     var email;
     var password;
     email = req.body.email;
     password = md5(req.body.password);
-
     UserSchema.findOne({email: email, password: password}, function (err, usuario) {
         if (err || usuario === null) {
             return res.send(400, {err: "El usuario o la contraseña no es correcto"});
@@ -138,13 +119,11 @@ exports.loginUser = async function (req, res) {
         return res.status(200).send({user: usuario, token: token}).json();
     });
 };
-
 // Buscar usuario por email (findUser) - GET
 exports.findUser = function (req, res) {
     var emailElegido;
     emailElegido = req.body.email;
     console.log(emailElegido);
-
     UserSchema.findOne({email: emailElegido}, function (err, user) {
         if (err) {
             res.send(500, err.message);
@@ -153,11 +132,9 @@ exports.findUser = function (req, res) {
         }
     });
 };
-
 // Recuperar contraseña usuario por email (recuperarPass) - GET
 exports.recuperarPassword = function (req, res) {
     var emailElegido = req.body.email;
-
     UserSchema.findOne({email: emailElegido}, function (err, user) {
         if (err) {
             return res.send(500, err.message);
@@ -166,12 +143,10 @@ exports.recuperarPassword = function (req, res) {
         return res.status(200).json({password: user.password});
     });
 };
-
 // Cerrar sesion (LOGOUT) - GET
 exports.logoutUser = function (req, res, next) {
     return res.status(200).json({});
 };
-
 // Probando funcion thereads
 exports.obtenerPista = function (req, resp, next) {
     var fechaElegidaString, inicioHoraString, finHoraString;
@@ -185,12 +160,10 @@ exports.obtenerPista = function (req, resp, next) {
     var partidas = {};
     var reUrl = [];
     var queries = [];
-
     fechaElegidaString = req.body.fecha;
     inicioHoraString = req.body.inicioHora;
     finHoraString = req.body.finHora;
     ubicacionElegida = req.body.ubicacion;
-
     switch (ubicacionElegida) {
         case "valencia":
             console.log("Funciona valencia");
@@ -226,11 +199,9 @@ exports.obtenerPista = function (req, resp, next) {
     anyoElegido = anyoMesDiaElegidoArray[0];
     mesElegido = anyoMesDiaElegidoArray[1];
     diaElegido = anyoMesDiaElegidoArray[2];
-
     horaMinInicioHoraElegidoArray = inicioHoraString.split(":");
     horaInicioElegido = horaMinInicioHoraElegidoArray[0];
     minInicioElegido = horaMinInicioHoraElegidoArray[1];
-
     horaMinFinHoraElegidoArray = finHoraString.split(":");
     horaFinElegido = horaMinFinHoraElegidoArray[0];
     minFinElegido = horaMinFinHoraElegidoArray[1];
@@ -240,11 +211,9 @@ exports.obtenerPista = function (req, resp, next) {
 
     inicioElegidoDate = new Date(anyoElegido, mesElegido - 1, diaElegido, parseInt(horaInicioElegido) + 1, minInicioElegido);
     finElegidoDate = new Date(anyoElegido, mesElegido - 1, diaElegido, parseInt(horaFinElegido) + 1, minFinElegido);
-
     queries.push(function (callbackW) {
         var bodies;
         bodies = [];
-
         async.eachOfSeries(uris, function (uri, key, callbackEach) {
             request(uri, (err, res, body) => {
                 if (err) {
@@ -254,7 +223,7 @@ exports.obtenerPista = function (req, resp, next) {
                     bodies.push(body);
                 }
                 return callbackEach();
-            });// fin request
+            }); // fin request
         }, function (err) {
             if (err) {
                 return callbackW();
@@ -263,23 +232,18 @@ exports.obtenerPista = function (req, resp, next) {
             return callbackW(null, bodies);
         });
     });
-
     queries.push(function (bodies, callbackW) {
         for (var i in bodies) {
             let horasHtml, horasMinInicioHorasMinFinPartidaHtmlArray, inicioPartidaDate, finPartidaDate, disponibilidad;
             let horaInicioPartidaHtml, minInicioPartidaHtml, horaFinPartidaHtml, minFinPartidaHtml;
             var info;
             var html = cheerio.load(bodies[i]);
-
             console.log("Data retrived correctly from: " + uris[counter - 1]);
-
             // Extracion de la informacion de la web.
             info = html(".TextoLink,.botonVerdePartidas", "#divContenedorPartidas");
-
             // probar con 2 y luego cambiar por info.length
             for (let j = 0; j < (info.length); j += 2) {
                 let result = {};
-
                 // Extraccion de las horas
                 horasHtml = html(info[j]).text().replace(" - ", ":");
                 horasMinInicioHorasMinFinPartidaHtmlArray = horasHtml.split(":");
@@ -287,15 +251,12 @@ exports.obtenerPista = function (req, resp, next) {
                 minInicioPartidaHtml = horasMinInicioHorasMinFinPartidaHtmlArray[1];
                 horaFinPartidaHtml = horasMinInicioHorasMinFinPartidaHtmlArray[2];
                 minFinPartidaHtml = horasMinInicioHorasMinFinPartidaHtmlArray[3];
-
                 inicioPartidaDate = new Date(anyoElegido, mesElegido - 1, diaElegido, parseInt(horaInicioPartidaHtml) + 1, parseInt(minInicioPartidaHtml));
                 if (horaFinPartidaHtml === "0") {
                     horaFinPartidaHtml = "24";
                 }
                 finPartidaDate = new Date(anyoElegido, mesElegido - 1, diaElegido, parseInt(horaFinPartidaHtml) + 1, parseInt(minFinPartidaHtml));
-
                 disponibilidad = html(info[j + 1]).text();
-
                 reUrl = info[j].attribs.href;
                 // habbria que meterlo en if de las horas
                 result = {
@@ -321,7 +282,6 @@ exports.obtenerPista = function (req, resp, next) {
         } // fin for
         return callbackW();
     });
-
     async.waterfall(queries, function (err) {
         if (err) {
             return next();
@@ -329,7 +289,7 @@ exports.obtenerPista = function (req, resp, next) {
 
         resp.json(partidas);
     });
-};// fin obtener pista
+}; // fin obtener pista
 
 // Enviar valoracion (VALORAR) - POST
 exports.enviarValoracion = function (req, res, err) {
@@ -337,14 +297,12 @@ exports.enviarValoracion = function (req, res, err) {
     var puntuacion = req.body.puntuacion;
     var comentario = req.body.comentario;
     var valoradorPor = req.body.valorado_por;
-
     var valoracion = new ValoracionSchema({
         puntuacion: puntuacion,
         comentario: comentario,
         user: user,
         valorado_por: valoradorPor
     });
-
     valoracion.save(function (err) {
         if (err) {
             return res.send(500, err.message);
@@ -352,11 +310,9 @@ exports.enviarValoracion = function (req, res, err) {
         res.status(200).json(valoracion);
     });
 };
-
 // Mostrar valoraciones (VALORAR) - GET
 exports.mostrarValoraciones = function (req, res) {
     var email = req.params.email;
-
     ValoracionSchema.find({user: email}, function (err, valoraciones) {
         if (err) {
             res.send(500, err.message);
