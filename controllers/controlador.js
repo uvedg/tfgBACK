@@ -168,8 +168,9 @@ exports.obtenerPista = function (req, resp, next) {
         case "valencia":
             console.log("Funciona valencia");
             uris = [
-                "http://usuarios.futbolcity.es/partidas/Cuadro.aspx" + "?f=" + fechaElegidaString + "&c=3"
-                        // "http://www.padel365.com/Partidas/Cuadro.aspx" + "?f=" + fechaElegida + "&c=3"
+         "http://usuarios.futbolcity.es/partidas/Cuadro.aspx" + "?f=" + fechaElegidaString + "&c=3",
+//       "http://www.padel365.com/Partidas/Cuadro.aspx" + "?f=" + fechaElegidaString + "&c=3", // no tiene
+//       "https://www.sumapadelalfafar.com/Partidas/Cuadro.aspx" + "?f=" + fechaElegidaString + "&c=3" // 0 todas no disponible
             ];
             break;
         case "castellon":
@@ -261,6 +262,7 @@ exports.obtenerPista = function (req, resp, next) {
                 // habbria que meterlo en if de las horas
                 result = {
                     // "url": uris[counter],
+                    "pista": reUrl.split("/")[2],
                     "date": html(".fechaTabla", "#divContenedorPartidas").attr("value"),
                     "horainicioPartida": horaInicioPartidaHtml + ":" + minInicioPartidaHtml,
                     "horafinPartida": horaFinPartidaHtml + ":" + minFinPartidaHtml,
