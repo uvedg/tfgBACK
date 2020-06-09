@@ -168,7 +168,7 @@ exports.obtenerPista = function (req, resp, next) {
         case "valencia":
             console.log("Funciona valencia");
             uris = [
-         "http://usuarios.futbolcity.es/partidas/Cuadro.aspx" + "?f=" + fechaElegidaString + "&c=3",
+                "http://usuarios.futbolcity.es/partidas/Cuadro.aspx" + "?f=" + fechaElegidaString + "&c=3",
 //       "http://www.padel365.com/Partidas/Cuadro.aspx" + "?f=" + fechaElegidaString + "&c=3", // no tiene
 //       "https://www.sumapadelalfafar.com/Partidas/Cuadro.aspx" + "?f=" + fechaElegidaString + "&c=3" // 0 todas no disponible
             ];
@@ -237,48 +237,68 @@ exports.obtenerPista = function (req, resp, next) {
         for (var i in bodies) {
             let horasHtml, horasMinInicioHorasMinFinPartidaHtmlArray, inicioPartidaDate, finPartidaDate, disponibilidad;
             let horaInicioPartidaHtml, minInicioPartidaHtml, horaFinPartidaHtml, minFinPartidaHtml;
+            let parametros, parametrosHoraInicio, parametrosHoraFin, horasMinInicioPartidaHtmlArray, horasMinFinPartidaHtmlArray;
             var info;
             var html = cheerio.load(bodies[i]);
             console.log("Data retrived correctly from: " + uris[counter - 1]);
             // Extracion de la informacion de la web.
-            info = html(".TextoLink,.botonVerdePartidas", "#divContenedorPartidas");
+//            info = html(".TextoLink,.botonVerdePartidas", "#divContenedorPartidas");
+            info = html(".botonVerdePartidas", "#divContenedorPartidas");
             // probar con 2 y luego cambiar por info.length
-            for (let j = 0; j < (info.length); j += 2) {
+//            for (let j = 0; j < (info.length); j += 2) {
+            for (let j = 0; j < (info.length); j ++) {
                 let result = {};
-                // Extraccion de las horas
-                horasHtml = html(info[j]).text().replace(" - ", ":");
-                horasMinInicioHorasMinFinPartidaHtmlArray = horasHtml.split(":");
-                horaInicioPartidaHtml = horasMinInicioHorasMinFinPartidaHtmlArray[0];
-                minInicioPartidaHtml = horasMinInicioHorasMinFinPartidaHtmlArray[1];
-                horaFinPartidaHtml = horasMinInicioHorasMinFinPartidaHtmlArray[2];
-                minFinPartidaHtml = horasMinInicioHorasMinFinPartidaHtmlArray[3];
-                inicioPartidaDate = new Date(anyoElegido, mesElegido - 1, diaElegido, parseInt(horaInicioPartidaHtml) + 1, parseInt(minInicioPartidaHtml));
-                if (horaFinPartidaHtml === "0") {
-                    horaFinPartidaHtml = "24";
-                }
-                finPartidaDate = new Date(anyoElegido, mesElegido - 1, diaElegido, parseInt(horaFinPartidaHtml) + 1, parseInt(minFinPartidaHtml));
-                disponibilidad = html(info[j + 1]).text();
-                reUrl = info[j].attribs.href;
-                // habbria que meterlo en if de las horas
-                result = {
-                    // "url": uris[counter],
-                    "pista": reUrl.split("/")[2],
-                    "date": html(".fechaTabla", "#divContenedorPartidas").attr("value"),
-                    "horainicioPartida": horaInicioPartidaHtml + ":" + minInicioPartidaHtml,
-                    "horafinPartida": horaFinPartidaHtml + ":" + minFinPartidaHtml,
-                    // "inicioElegido": inicioElegido,
-                    // "finElegido": finElegido,
-                    "direccion": reUrl,
-                    "disponibilidad": disponibilidad
-                };
-                if (j === 0) {
-                    partidas["web_" + counter] = [];
-                }
 
-                if (inicioPartidaDate >= inicioElegidoDate && finPartidaDate <= finElegidoDate &&
-                        disponibilidad === "Apuntarse") {
-                    partidas["web_" + counter].push(result);
-                }
+                // Extraccion de las horas ANTIGUO
+//                horasHtml = html(info[j]).text().replace(" - ", ":");
+//                horasMinInicioHorasMinFinPartidaHtmlArray = horasHtml.split(":");
+//                horaInicioPartidaHtml = horasMinInicioHorasMinFinPartidaHtmlArray[0];
+//                minInicioPartidaHtml = horasMinInicioHorasMinFinPartidaHtmlArray[1];
+//                horaFinPartidaHtml = horasMinInicioHorasMinFinPartidaHtmlArray[2];
+//                minFinPartidaHtml = horasMinInicioHorasMinFinPartidaHtmlArray[3];
+
+                // Extraccion de las horas NUEVO PUTO COVID
+                reUrl = info[j].attribs.href;
+                if (reUrl !== undefined) {
+                    parametros = reUrl.split("?")[1];
+                    parametrosHoraInicio = parametros.split("&")[4];
+                    parametrosHoraFin = parametros.split("&")[5];
+                    horasMinInicioPartidaHtmlArray = parametrosHoraInicio.split("=")[1];
+                    horaInicioPartidaHtml = horasMinInicioPartidaHtmlArray.split(":")[0];
+                    minInicioPartidaHtml = horasMinInicioPartidaHtmlArray.split(":")[1];
+                    horasMinFinPartidaHtmlArray = parametrosHoraFin.split("=")[1];
+                    horaFinPartidaHtml = horasMinFinPartidaHtmlArray.split(":")[0];
+                    minFinPartidaHtml = horasMinFinPartidaHtmlArray.split(":")[1];
+
+                    inicioPartidaDate = new Date(anyoElegido, mesElegido - 1, diaElegido, parseInt(horaInicioPartidaHtml) + 1, parseInt(minInicioPartidaHtml));
+                    if (horaFinPartidaHtml === "0") {
+                        horaFinPartidaHtml = "24";
+                    }
+                    finPartidaDate = new Date(anyoElegido, mesElegido - 1, diaElegido, parseInt(horaFinPartidaHtml) + 1, parseInt(minFinPartidaHtml));
+//                    disponibilidad = html(info[j + 1]).text();
+                    disponibilidad = html(info[j]).text();
+                    // habbria que meterlo en if de las horas
+                    result = {
+                        // "url": uris[counter],
+                        "pista": reUrl.split("/")[2],
+//                    "pista": "a",
+                        "date": html(".fechaTabla", "#divContenedorPartidas").attr("value"),
+                        "horainicioPartida": horaInicioPartidaHtml + ":" + minInicioPartidaHtml,
+                        "horafinPartida": horaFinPartidaHtml + ":" + minFinPartidaHtml,
+                        // "inicioElegido": inicioElegido,
+                        // "finElegido": finElegido,
+                        "direccion": reUrl,
+                        "disponibilidad": disponibilidad
+                    };
+                    if (j === 0) {
+                        partidas["web_" + counter] = [];
+                    }
+
+                    if (inicioPartidaDate >= inicioElegidoDate && finPartidaDate <= finElegidoDate &&
+                            disponibilidad === "Apuntarse") {
+                        partidas["web_" + counter].push(result);
+                    }
+                } // fin if undefined
             } // fin for j
             counter++;
         } // fin for
