@@ -257,7 +257,7 @@ exports.obtenerPista = function (req, resp, next) {
 //                horaFinPartidaHtml = horasMinInicioHorasMinFinPartidaHtmlArray[2];
 //                minFinPartidaHtml = horasMinInicioHorasMinFinPartidaHtmlArray[3];
 
-                // Extraccion de las horas NUEVO PUTO COVID
+                // Extraccion de las horas NUEVO 
                 reUrl = info[j].attribs.href;
                 if (reUrl !== undefined) {
                     parametros = reUrl.split("?")[1];

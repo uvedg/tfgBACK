@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 const ValoracionSchema = new mongoose.Schema({
     // Falta saber si las id de los usuarios (el que hace la valoracion y el valorado) se pone aqui.
-    user: {type: String, required: true, trim: true},
+    usuario: {type: String, required: true, trim: true},
     comentario: {type: String, required: false, trim: true},
     puntuacion: {type: Number, required: true, trim: true},
     valorado_por: {type: String, required: true, trim: true},
