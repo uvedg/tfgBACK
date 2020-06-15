@@ -315,14 +315,14 @@ exports.obtenerPista = function (req, resp, next) {
 
 // Enviar valoracion (VALORAR) - POST
 exports.enviarValoracion = function (req, res, err) {
-    var user = req.body.user;
+    var usuario = req.body.usuario;
     var puntuacion = req.body.puntuacion;
     var comentario = req.body.comentario;
     var valoradorPor = req.body.valorado_por;
     var valoracion = new ValoracionSchema({
         puntuacion: puntuacion,
         comentario: comentario,
-        user: user,
+        usuario: usuario,
         valorado_por: valoradorPor
     });
     valoracion.save(function (err) {
