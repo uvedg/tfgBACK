@@ -1,5 +1,8 @@
 var UserSchema = require("../models/users.model");
 var ValoracionSchema = require("../models/valoracion.model");
+var PaisSchema = require("../models/pais.model");
+var CiudadesSchema = require("../models/ciudad.model");
+var CentrosSchema = require("../models/centers.model");
 var service = require("../security/service");
 var async = require("async");
 var md5 = require("md5");
@@ -246,7 +249,7 @@ exports.obtenerPista = function (req, resp, next) {
             info = html(".botonVerdePartidas", "#divContenedorPartidas");
             // probar con 2 y luego cambiar por info.length
 //            for (let j = 0; j < (info.length); j += 2) {
-            for (let j = 0; j < (info.length); j ++) {
+            for (let j = 0; j < (info.length); j++) {
                 let result = {};
 
                 // Extraccion de las horas ANTIGUO
@@ -334,12 +337,89 @@ exports.enviarValoracion = function (req, res, err) {
 };
 // Mostrar valoraciones (VALORAR) - GET
 exports.mostrarValoraciones = function (req, res) {
-    var email = req.params.email;
-    ValoracionSchema.find({user: email}, function (err, valoraciones) {
+    var id = req.params.id;
+    ValoracionSchema.find({usuario: id}, function (err, valoraciones) {
         if (err) {
             res.send(500, err.message);
         } else {
             res.status(200).json(valoraciones);
         }
+    });
+};
+
+exports.mostrarPaises = function (req, res) {
+    PaisSchema.find({}, function (err, paises) {
+        if (err) {
+            res.send(500, err.message);
+        } else {
+            res.status(200).json(paises);
+        }
+    });
+};
+
+exports.enviarPais = function (req, res, err) {
+    var nombre = req.body.nombre;
+    var pais = new PaisSchema({
+        nombre: nombre
+    });
+    pais.save(function (err) {
+        if (err) {
+            return res.send(500, err.message);
+        }
+        res.status(200).json(pais);
+    });
+};
+
+exports.mostrarCiudades = function (req, res) {
+    CiudadesSchema.find({}, function (err, ciudades) {
+        if (err) {
+            res.send(500, err.message);
+        } else {
+            res.status(200).json(ciudades);
+        }
+    });
+};
+
+exports.enviarCiudad = function (req, res, err) {
+    var nombre = req.body.nombre;
+    var pais = req.body.pais;
+    var ciudad = new CiudadesSchema({
+        nombre: nombre,
+        pais: pais
+    });
+    ciudad.save(function (err) {
+        if (err) {
+            return res.send(500, err.message);
+        }
+        res.status(200).json(ciudad);
+    });
+};
+
+exports.mostrarCentros = function (req, res) {
+    CentrosSchema.find({}, function (err, ciudades) {
+        if (err) {
+            res.send(500, err.message);
+        } else {
+            res.status(200).json(ciudades);
+        }
+    });
+};
+
+exports.enviarCentro = function (req, res, err) {
+    var nombre = req.body.nombre;
+    var ciudad = req.body.ciudad;
+    var contacto = req.body.contacto;
+    var url = req.body.url;
+    var centro = new CentrosSchema({
+        nombre: nombre,
+        ciudad: ciudad,
+        contacto: contacto,
+        url: url
+    });
+    centro.save(function (err) {
+        if (err) {
+            return res.send(500, err.message);
+        }
+        res.status(200).json(centro);
     });
 };

@@ -33,8 +33,26 @@ router.post("/findUser", middleware.ensureAuthenticated, function (req, res) {
 router.post("/enviarValoracion", middleware.ensureAuthenticated, function (req, res) {
     Controlador.enviarValoracion(req, res);
 });
-router.get("/mostrarValoraciones/:email", middleware.ensureAuthenticated, function (req, res) {
+router.get("/mostrarValoraciones/:id", middleware.ensureAuthenticated, function (req, res) {
     Controlador.mostrarValoraciones(req, res);
+});
+router.get("/pais", middleware.ensureAuthenticated, function (req, res) {
+    Controlador.mostrarPaises(req, res);
+});
+router.post("/pais", middleware.ensureAuthenticated, function (req, res) {
+    Controlador.enviarPais(req, res);
+});
+router.get("/ciudad", middleware.ensureAuthenticated, function (req, res) {
+    Controlador.mostrarCiudades(req, res);
+});
+router.post("/ciudad", middleware.ensureAuthenticated, function (req, res) {
+    Controlador.enviarCiudad(req, res);
+});
+router.get("/centro", middleware.ensureAuthenticated, function (req, res) {
+    Controlador.mostrarCentros(req, res);
+});
+router.post("/centro", middleware.ensureAuthenticated, function (req, res) {
+    Controlador.enviarCentro(req, res);
 });
 
 module.exports = router;
