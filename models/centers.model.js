@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
 const CenterSchema = new mongoose.Schema({
-    nombre: {type: String, required: true, trim: true},
+    centro: {type: String, required: true, trim: true},
 //    ciudad: {type: String, required: true, trim: true},
     ciudad: {type: Schema.Types.ObjectId, ref: "Pais", required: true, trim: true},
     contacto: {type: String, required: true, trim: true},

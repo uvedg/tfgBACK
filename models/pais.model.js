@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const PaisSchema = new mongoose.Schema({
-    nombre: {type: String, required: true, trim: true},
+    pais: {type: String, required: true, trim: true},
     createdAt: {type: Date, default: Date.now}
 }, {versionKey: false});
 

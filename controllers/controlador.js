@@ -358,15 +358,15 @@ exports.mostrarPaises = function (req, res) {
 };
 
 exports.enviarPais = function (req, res, err) {
-    var nombre = req.body.nombre;
-    var pais = new PaisSchema({
-        nombre: nombre
+    var pais = req.body.pais;
+    var paisSchema = new PaisSchema({
+        pais: pais
     });
-    pais.save(function (err) {
+    paisSchema.save(function (err) {
         if (err) {
             return res.send(500, err.message);
         }
-        res.status(200).json(pais);
+        res.status(200).json("El país se ha guardado con exito");
     });
 };
 
@@ -381,17 +381,17 @@ exports.mostrarCiudades = function (req, res) {
 };
 
 exports.enviarCiudad = function (req, res, err) {
-    var nombre = req.body.nombre;
+    var ciudad = req.body.ciudad;
     var pais = req.body.pais;
-    var ciudad = new CiudadesSchema({
-        nombre: nombre,
+    var ciudadSchema = new CiudadesSchema({
+        ciudad: ciudad,
         pais: pais
     });
-    ciudad.save(function (err) {
+    ciudadSchema.save(function (err) {
         if (err) {
             return res.send(500, err.message);
         }
-        res.status(200).json(ciudad);
+        res.status(200).json("La ciudad se ha guardado con exito");
     });
 };
 
@@ -406,20 +406,20 @@ exports.mostrarCentros = function (req, res) {
 };
 
 exports.enviarCentro = function (req, res, err) {
-    var nombre = req.body.nombre;
+    var centro = req.body.centro;
     var ciudad = req.body.ciudad;
     var contacto = req.body.contacto;
     var url = req.body.url;
-    var centro = new CentrosSchema({
-        nombre: nombre,
+    var centroSchema = new CentrosSchema({
+        centro: centro,
         ciudad: ciudad,
         contacto: contacto,
         url: url
     });
-    centro.save(function (err) {
+    centroSchema.save(function (err) {
         if (err) {
             return res.send(500, err.message);
         }
-        res.status(200).json(centro);
+        res.status(200).json("El centro se ha guardado con exito");
     });
 };
