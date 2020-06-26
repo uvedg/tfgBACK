@@ -6,6 +6,7 @@ var CentrosSchema = require("../models/centers.model");
 var service = require("../security/service");
 var async = require("async");
 var md5 = require("md5");
+var perfy = require("perfy");
 // Añadido para obtener pista
 const cheerio = require("cheerio");
 const request = require("request");
@@ -163,10 +164,16 @@ exports.obtenerPista = function (req, resp, next) {
     var partidas = {};
     var reUrl = [];
     var queries = [];
+
     fechaElegidaString = req.body.fecha;
     inicioHoraString = req.body.inicioHora;
     finHoraString = req.body.finHora;
     ubicacionElegida = req.body.ubicacion;
+
+    perfy.start("Obtener pista");
+
+    console.log("Obtener pista: " + perfy.end("Obtener pista").time + "s");
+
     switch (ubicacionElegida) {
         case "valencia":
             console.log("Funciona valencia");
@@ -260,6 +267,10 @@ exports.obtenerPista = function (req, resp, next) {
 //                horaFinPartidaHtml = horasMinInicioHorasMinFinPartidaHtmlArray[2];
 //                minFinPartidaHtml = horasMinInicioHorasMinFinPartidaHtmlArray[3];
 
+                if (j === 0) {
+                    partidas["web_" + counter] = [];
+                }
+
                 // Extraccion de las horas NUEVO 
                 reUrl = info[j].attribs.href;
                 if (reUrl !== undefined) {
@@ -293,9 +304,6 @@ exports.obtenerPista = function (req, resp, next) {
                         "direccion": reUrl,
                         "disponibilidad": disponibilidad
                     };
-                    if (j === 0) {
-                        partidas["web_" + counter] = [];
-                    }
 
                     if (inicioPartidaDate >= inicioElegidoDate && finPartidaDate <= finElegidoDate &&
                             disponibilidad === "Apuntarse") {

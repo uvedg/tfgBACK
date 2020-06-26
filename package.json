@@ -27,6 +27,7 @@
         "moment": "^2.24.0",
         "mongoose": "^5.5.15",
         "nodemon": "^1.19.1",
+        "perfy": "^1.1.5",
         "request": "^2.88.0"
     },
     "repository": {
