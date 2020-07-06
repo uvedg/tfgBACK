@@ -294,7 +294,8 @@ exports.obtenerPista = function (req, resp, next) {
                     // habbria que meterlo en if de las horas
                     result = {
                         // "url": uris[counter],
-                        "pista": reUrl.split("/")[2],
+//                        "pista": reUrl.split("/")[2],
+                        "pista": "Padel City",
 //                    "pista": "a",
                         "date": html(".fechaTabla", "#divContenedorPartidas").attr("value"),
                         "horainicioPartida": horaInicioPartidaHtml + ":" + minInicioPartidaHtml,
